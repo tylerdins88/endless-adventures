@@ -1,16 +1,13 @@
 <template>
   <header>
-    <div class="banner-wrapper">
+    <div class="welcomeImage-wrapper">
       <img
-        alt="Vue logo"
-        class="banner"
+        alt="Welcome Image"
+        class="welcomeImage"
         src="../assets/endless-adventures-logo.jpg"
-        width="400"
-        height="300"
       />
     </div>
-
-    <div class="wrapper">
+    <div class="welcome">
       <p>
         Welcome to Endless Adventures! Your free travel agent service where the
         possibilities are endless! From hotels & concert tickets to overseas
@@ -26,8 +23,8 @@ header {
   max-height: 100vh;
 }
 
-.banner-wrapper {
-  background-color: #f0f0f0;
+.welcomeImage-wrapper {
+  background-color: #b7d9f7;
   padding: 1.5rem;
   border-radius: 1rem;
   max-width: fit-content;
@@ -35,13 +32,15 @@ header {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.banner {
+.welcomeImage {
+  height: 400px;
+  width: auto;
   display: block;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.wrapper {
+.welcome {
   margin-bottom: 1rem;
 }
 
@@ -50,9 +49,3 @@ h1 {
   font-size: 48px;
 }
 </style>
-
-<script>
-export default {
-  name: "Home",
-};
-</script>

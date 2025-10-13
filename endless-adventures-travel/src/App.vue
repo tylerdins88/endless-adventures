@@ -10,7 +10,9 @@ import Footer from "./components/Footer.vue";
     <main class="content-wrap">
       <RouterView />
     </main>
-    <Footer />
+    <div class="w-full bottom-0 left-0">
+      <Footer />
+    </div>
   </div>
 </template>
 

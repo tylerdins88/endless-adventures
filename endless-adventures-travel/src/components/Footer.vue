@@ -2,6 +2,7 @@
   <footer class="footer-container">
     <div class="external-links">
       <a
+        class="external-links"
         href="https://www.instagram.com/endlessadventureswithali/"
         target="_blank"
         rel="noopener"
@@ -12,7 +13,7 @@
 
     <div class="text-center md:text-right text-sage-light text-sm">
       &copy; {{ new Date().getFullYear() }} Website by
-      <span class="text-sage-base font-semibold">Web Warlocks</span>
+      <span class="font-semibold">Web Warlocks</span>
     </div>
   </footer>
 </template>
@@ -31,11 +32,11 @@ footer {
   align-items: center;
   padding: 1rem;
   font-size: 1rem;
-  background-color: goldenrod;
-  border-top: 1px solid #ccc;
+  background-color: #b7d9f7;
   margin-top: auto;
 }
 .external-links {
+  color: navy;
   font-size: 1.1rem;
   display: flex;
   gap: 1rem;
