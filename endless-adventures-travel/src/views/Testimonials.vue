@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>Testimonials and reviews by previous travelers.</p>
+    <p>Testimonials and reviews by previous destinationsers.</p>
   </div>
 </template>
 

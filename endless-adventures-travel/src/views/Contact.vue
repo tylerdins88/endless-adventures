@@ -1,58 +1,49 @@
 <template>
   <div class="formcontainer">
-    <div
-      class="emailform max-w-lg mx-auto shadow-lg rounded-lg overflow-hidden"
-    >
-      <form @submit.prevent="submitForm" ref="formRef" class="p-6" novalidate>
-        <!-- Honeypot (hidden from users; simple bot trap) -->
+    <div class="emailform">
+      <form @submit.prevent="submitForm" ref="formRef" novalidate>
+        <!-- Honeypot (hidden field to catch bots) -->
         <input
           type="text"
           name="website"
+          class="hp"
           tabindex="-1"
           autocomplete="off"
-          style="
-            position: absolute;
-            left: -9999px;
-            top: auto;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-          "
           aria-hidden="true"
         />
 
-        <div class="mb-5">
-          <label for="user_name" class="nameLabel text-sm">Name:</label>
+        <div>
+          <label for="user_name" class="label">Name:</label>
           <input
             v-model="formData.user_name"
             type="text"
             id="user_name"
             name="user_name"
-            class="personsName block w-full mt-1 px-4 py-2.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-600"
+            class="field"
             required
           />
         </div>
 
-        <div class="mb-5">
-          <label for="user_email" class="emailLabel text-sm">Email:</label>
+        <div>
+          <label for="user_email" class="label">Email:</label>
           <input
             v-model="formData.user_email"
             type="email"
             id="user_email"
             name="user_email"
-            class="personsEmail block w-full mt-1 px-4 py-2.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-600"
+            class="field"
             required
           />
         </div>
 
-        <div class="mb-5">
-          <label for="message" class="messageLabel text-sm">Message:</label>
+        <div>
+          <label for="message" class="label">Message:</label>
           <textarea
             v-model="formData.message"
             id="message"
             name="message"
             rows="4"
-            class="personsMessage block w-full mt-1 px-4 py-2.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-600"
+            class="field"
             required
           ></textarea>
         </div>
@@ -61,22 +52,21 @@
           type="submit"
           :disabled="isSubmitting"
           :aria-busy="isSubmitting ? 'true' : 'false'"
-          class="w-full focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors duration-300 ease-in-out"
+          class="btn w-full"
         >
           Send
         </button>
 
         <span
           v-if="isSubmitting"
-          class="block mt-2 text-gray-600 dark:text-gray-400"
+          class="status"
           role="status"
           aria-live="polite"
         >
           Sending...
         </span>
 
-        <!-- User-facing status message -->
-        <p v-if="status" class="block mt-3 text-sm" aria-live="polite">
+        <p v-if="status" class="status" aria-live="polite">
           {{ status }}
         </p>
       </form>
@@ -94,84 +84,54 @@ const userId = import.meta.env.VITE_EMAILJS_USER_ID;
 export default {
   data() {
     return {
-      formData: {
-        user_name: "",
-        user_email: "",
-        message: "",
-      },
+      formData: { user_name: "", user_email: "", message: "" },
       isSubmitting: false,
-      status: "", // success/error message shown to the user
+      status: "",
+      _statusTimer: null,
     };
   },
   methods: {
     async submitForm(event) {
-      // Redundant because of @submit.prevent, but harmless:
-      if (event && typeof event.preventDefault === "function")
-        event.preventDefault();
+      if (event?.preventDefault) event.preventDefault();
 
       const form = this.$refs.formRef;
+      if (form?.website?.value) return; // honeypot
 
-      // Honeypot check (if filled, likely a bot)
-      if (form && form.website && form.website.value) {
-        // Silently drop submission
-        return;
-      }
-
-      // Native validation
       if (!form.checkValidity()) {
-        this.status = "Please fill in all required fields.";
-        this._clearStatusSoon();
+        this._flash("Please fill in all required fields.");
         return;
       }
 
-      // Extra email validation
       const emailOK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
         this.formData.user_email
       );
       if (!emailOK) {
-        this.status = "Please enter a valid email address.";
-        this._clearStatusSoon();
+        this._flash("Please enter a valid email address.");
         return;
       }
 
       this.isSubmitting = true;
       this.status = "";
-
       try {
-        await this.sendEmail(form);
-        // Success feedback
+        await emailjs.sendForm(serviceId, templateId, form, userId);
         this.status = "Thanks! Your message has been sent.";
-        // Reset the form fields
-        this.formData.user_name = "";
-        this.formData.user_email = "";
-        this.formData.message = "";
-        // Also clear native form inputs to keep EmailJS/refs in sync
+        this.formData = { user_name: "", user_email: "", message: "" };
         form.reset();
-      } catch (error) {
-        console.error("Failed to send email:", error);
+      } catch (err) {
+        console.error("Failed to send email:", err);
         this.status = "Sorry—something went wrong. Please try again.";
       } finally {
         this.isSubmitting = false;
         this._clearStatusSoon();
       }
     },
-    sendEmail(form) {
-      return emailjs
-        .sendForm(serviceId, templateId, form, userId)
-        .then((result) => {
-          console.log("SUCCESS!", result.text);
-        })
-        .catch((error) => {
-          console.log("FAILED...", error.text || error);
-          throw error; // Re-throw for upstream handling
-        });
+    _flash(msg) {
+      this.status = msg;
+      this._clearStatusSoon();
     },
     _clearStatusSoon() {
-      // Clear the status message after a few seconds
       if (this._statusTimer) clearTimeout(this._statusTimer);
-      this._statusTimer = setTimeout(() => {
-        this.status = "";
-      }, 6000);
+      this._statusTimer = setTimeout(() => (this.status = ""), 6000);
     },
   },
   beforeUnmount() {
@@ -181,46 +141,79 @@ export default {
 </script>
 
 <style scoped>
-/* Add any additional styling or overrides here */
-
 .formcontainer {
   margin-top: 3em;
 }
 
 .emailform {
   margin-top: 40px;
-  background-color: #006db0;
+  background-color: #b7d9f7; /* requested blue */
 }
 
-.nameLabel,
-.emailLabel,
-.messageLabel {
+/* Labels */
+.label {
+  display: block;
   color: black;
-  margin-left: 20px;
+  margin-left: 0.25rem;
+  font-size: 0.875rem;
 }
 
-.personsName,
-.personsEmail,
-.personsMessage {
-  color: black;
-  background-color: silver;
+/* Inputs & Textarea */
+.field {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  border: 1px solid #333;
+  border-radius: 0.375rem;
+  background-color: #5c4421; /* requested gold */
+  color: #ffffff; /* improve contrast on dark gold */
 }
 
-button {
-  color: black;
-  background-color: silver;
+.field:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(183, 217, 247, 0.6);
+  border-color: #000;
 }
 
-button:hover {
-  background-color: #006db0;
-  border: 1px solid black;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+/* Button */
+.btn {
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: box-shadow 0.2s ease, transform 0.05s ease,
+    background-color 0.2s ease;
+  background-color: #5c4421; /* requested gold */
+  color: #ffffff; /* readable on dark gold */
+  border: 1px solid #000;
 }
 
-@media (max-width: 640px) {
-  .emailform {
-    margin-top: 200px;
-    max-width: 90%;
-  }
+.btn:hover {
+  background-color: #b7d9f7; /* swap on hover for a simple effect */
+  color: #000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status text */
+.status {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* Honeypot field (visually hidden) */
+.hp {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
 }
 </style>

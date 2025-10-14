@@ -9,9 +9,9 @@
     </div>
     <div class="welcome">
       <p>
-        Welcome to Endless Adventures! Your free travel agent service where the
-        possibilities are endless! From hotels & concert tickets to overseas
-        destination!
+        Welcome to Endless Adventures! Your free destinations agent service
+        where the possibilities are endless! From hotels & concert tickets to
+        overseas destination!
       </p>
     </div>
   </header>
