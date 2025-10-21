@@ -2,18 +2,28 @@
   <div class="destination-frame">
     <!-- Collapsible Header -->
     <div class="destination-header" @click="toggleOpen">
-      <h2>{{ destination.title }} - {{ destination.location }}</h2>
-      <span class="caret">{{ isOpen ? "▼" : "▶" }}</span>
+      <img
+        :src="getHeaderPhoto(destination.header)"
+        alt="Destination photo"
+        class="destination-thumb-vertical"
+      />
+      <div class="destination-title">
+        <h2>{{ destination.title }} - {{ destination.location }}</h2>
+        <span class="caret">{{ isOpen ? "▼" : "▶" }}</span>
+      </div>
     </div>
 
     <!-- Collapsible Content -->
     <div v-if="isOpen">
       <ul class="destination-info-grid">
+        <li><strong>Details:</strong> {{ destination.details }}</li>
+        <li><strong>Location:</strong> {{ destination.location }}</li>
+        <li><strong>Features:</strong> {{ destination.features }}</li>
         <li>
-          Details: <strong>{{ destination.details }}</strong>
-        </li>
-        <li>
-          Location: <strong>{{ destination.location }}</strong>
+          <strong>Type:</strong>
+          <span v-if="destination.family === 'Yes'">Family Friendly</span>
+          <span v-else-if="destination.adult === 'Yes'">Adult Only</span>
+          <span v-else>General</span>
         </li>
       </ul>
 
@@ -63,6 +73,13 @@ const modalPhoto = ref(null);
 
 const toggleOpen = () => {
   isOpen.value = !isOpen.value;
+};
+
+const getHeaderPhoto = (filename) => {
+  return new URL(
+    `../../assets/destinationphotos/${destination.folder}/${filename}`,
+    import.meta.url
+  ).href;
 };
 
 const getPhotoUrl = (filename) => {
@@ -146,6 +163,7 @@ const closeModal = () => {
 
 .destination-header {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
@@ -155,12 +173,25 @@ const closeModal = () => {
   border-radius: 0.5rem;
 }
 
+.destination-thumb-vertical {
+  padding-top: 8px;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.destination-title {
+  padding: 8px;
+  display: inline-flex;
+}
 .destination-header h2 {
   font-size: 1.25rem;
   margin: 0;
 }
 
 .caret {
+  padding-left: 24px;
   font-size: 1.25rem;
   user-select: none;
 }

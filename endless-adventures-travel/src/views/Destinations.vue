@@ -1,5 +1,7 @@
 <template>
   <DestinationFrame :destination="destinations[0]" />
+  <DestinationFrame :destination="destinations[1]" />
+  <DestinationFrame :destination="destinations[2]" />
 </template>
 
 <script>
